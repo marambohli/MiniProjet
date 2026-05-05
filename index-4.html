@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Exercise Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-dark: #020617; --accent: #3b82f6; --glass: rgba(30, 41, 59, 0.7); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-dark); color: white; height: 100vh; overflow: hidden; }
+
+        /* Start Screen */
+        #start-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #020617 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: 0.8s; }
+        .robot-logo { font-size: 5rem; color: var(--accent); filter: drop-shadow(0 0 15px var(--accent)); margin-bottom: 20px; }
+        .start-btn { padding: 18px 50px; font-size: 1.1rem; font-weight: 700; color: white; background: var(--accent); border: none; border-radius: 50px; cursor: pointer; }
+
+        /* Main App */
+        #main-app { display: none; height: 100vh; flex-direction: column; opacity: 0; transition: 0.5s; }
+        .app-header { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Sidebar */
+        #sidebar { position: fixed; right: -320px; top: 0; width: 320px; height: 100%; background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(20px); border-left: 1px solid rgba(255,255,255,0.1); padding: 40px 20px; transition: 0.4s; z-index: 500; }
+        #sidebar.active { right: 0; }
+        .history-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Chatbox */
+        #chat-box { flex: 1; padding: 40px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin: 0 auto; width: 100%; }
+        .message { padding: 18px; border-radius: 20px; max-width: 80%; animation: slideUp 0.4s; }
+        .user-message { align-self: flex-end; background: var(--accent); }
+        .bot-message { align-self: flex-start; background: var(--glass); border: 1px solid rgba(255,255,255,0.1); }
+
+        /* Input */
+        .input-area { padding: 30px; }
+        .input-box { max-width: 800px; margin: 0 auto; background: rgba(30, 41, 59, 0.6); border-radius: 18px; display: flex; align-items: center; padding: 5px 20px; border: 1px solid rgba(255,255,255,0.1); }
+        input { background: transparent; border: none; outline: none; color: white; flex: 1; padding: 15px; }
+        .icon-btn { color: #94a3b8; cursor: pointer; font-size: 1.4rem; margin: 0 10px; transition: 0.2s; }
+        
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen">
+        <i class="fas fa-robot robot-logo"></i>
+        <h1>AI Exercise Generator</h1>
+        <button class="start-btn" onclick="initApp()">Commencer</button>
+    </div>
+
+    <div id="main-app">
+        <header class="app-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-robot" style="color:var(--accent)"></i>
+                <span style="font-weight: 800;">GEN-EXERCISE AI</span>
+            </div>
+            <i class="fas fa-th-large icon-btn" onclick="toggleSidebar()"></i>
+        </header>
+
+        <div id="sidebar">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h3 style="color:var(--accent)">Historique</h3>
+                <i class="fas fa-times icon-btn" onclick="toggleSidebar()"></i>
+            </div>
+            <div id="history-container"></div>
+        </div>
+
+        <div id="chat-box">
+            <div class="message bot-message">
+                Bonjour ! Je suis votre assistant spécialisé en **génération d'exercices**. 
+                Comment puis-je vous aider aujourd'hui ?
+            </div>
+        </div>
+
+        <div class="input-area">
+            <div class="input-box">
+                <i class="fas fa-eraser icon-btn" onclick="clearDisplay()" title="Effacer l'écran"></i>
+                <input type="text" id="user-input" placeholder="Posez votre question..." onkeypress="if(event.key==='Enter') sendMessage()">
+                <i class="fas fa-paper-plane icon-btn" style="color:var(--accent)" onclick="sendMessage()"></i>
+            </div>
+        </div>
+    </div>
+
